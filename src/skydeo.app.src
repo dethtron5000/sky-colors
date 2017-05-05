@@ -1,0 +1,12 @@
+{application, skydeo,
+ [
+  {description, ""},
+  {vsn, "1"},
+  {registered, []},
+  {applications, [
+                  kernel,
+                  stdlib
+                 ]},
+  {mod, { skydeo_app, []}},
+  {env, []}
+ ]}.
