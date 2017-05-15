@@ -43,7 +43,7 @@ handle_call({parse,File}, From, State) ->
         [File], 
         From, 
         State),
-    {reply, ok, State};
+    {noreply,State};
 
 handle_call(_Request, _From, State) ->
     {reply, ok, State}.
@@ -76,11 +76,13 @@ parse_file(File,_State) ->
 	],
 	{ok, [Out]} = emagick:convert(Data,jpg,txt,Opts),
 	Z = binary:split(Out,<<"\n">>,[global]),
-	Final = lists:map(fun extract_colors/1, Z),
-	io:format("~P~n",[Final,100]). 
+	ColorElems = lists:map(fun extract_colors/1, Z),
+	io:format("~P~n",[ColorElems,100]),
+	Zout = lists:foldl(fun accumulator/2, orddict:new(), ColorElems),
+	io:format("~P~n",[Zout,100]). 
 
 extract_colors(ColorLine) ->
-	Colors = [r,g,b],
+	Colors = [hex,r,g,b],
 	% ,([\d]{1,3}),([\d]{1,3})\\)
 	Z = re:run(ColorLine, get_pattern(),[{capture,Colors,binary}]),
 	io:format("~P~P~n",[ColorLine,100,Z,100]),
@@ -92,8 +94,23 @@ parse_match(nomatch,_) ->
 	[].
 
 get_pattern() ->
-	{ok, Pattern} = re:compile("rgb\\((?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})\\)",[unicode]),
+	{ok, Pattern} = re:compile("#(?<hex>[0-9A-F]{6})[\s]+rgb\\((?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})\\)",[unicode]),
 	Pattern.
+
+accumulator(Elem, Acc) ->
+	Hex = proplists:get_value(hex,Elem),
+	Initial = Elem ++ [{count,1}],
+	case Hex of
+		undefined ->
+			Acc;
+		_ -> orddict:update(Hex, fun updater/1, Initial, Acc)
+	end.
+	
+updater(Elem) ->
+	Val = proplists:get_value(count,Elem),
+	NewList = proplists:delete(count, Elem),
+	NewList ++ [{count, Val + 1}].
+
 
 	
 
