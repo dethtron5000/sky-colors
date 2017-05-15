@@ -42,9 +42,7 @@ handle_call({parse,File}, From, State) ->
         parse_file, 
         [File], 
         From, 
-        State
-
-		),
+        State),
     {reply, ok, State};
 
 handle_call(_Request, _From, State) ->
@@ -70,12 +68,32 @@ parse_file(File,_State) ->
 	{ok, Data} = file:read_file(File),
 	%io:format("~p~n",[Data]),
 	Opts = [
-		%{"resize", "16000@"},
-		{"scale", "1x1"},
+		{"resize", "1600@"},
+		%{"scale", "200x200"},
 		{"depth", 8},
 		{"colors", 16},
-		{"colorspace", "HSB"}
+		{"colorspace", "RGB"}
 	],
-	Out = emagick:convert(Data,jpg,txt,Opts),
-	io:format("~P~n",[Out,100]),
-	ok. 
+	{ok, [Out]} = emagick:convert(Data,jpg,txt,Opts),
+	Z = binary:split(Out,<<"\n">>,[global]),
+	Final = lists:map(fun extract_colors/1, Z),
+	io:format("~P~n",[Final,100]). 
+
+extract_colors(ColorLine) ->
+	Colors = [r,g,b],
+	% ,([\d]{1,3}),([\d]{1,3})\\)
+	Z = re:run(ColorLine, get_pattern(),[{capture,Colors,binary}]),
+	io:format("~P~P~n",[ColorLine,100,Z,100]),
+	parse_match(Z,Colors).
+
+parse_match({match,ColorList},Colors) ->
+	lists:zip(Colors,ColorList);
+parse_match(nomatch,_) ->
+	[].
+
+get_pattern() ->
+	{ok, Pattern} = re:compile("rgb\\((?<r>[0-9]{1,3}),(?<g>[0-9]{1,3}),(?<b>[0-9]{1,3})\\)",[unicode]),
+	Pattern.
+
+	
+
