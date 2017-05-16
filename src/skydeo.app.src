@@ -3,9 +3,12 @@
   {description, ""},
   {vsn, "1"},
   {registered, []},
-  {applications, [
+  {applications, [ 
                   kernel,
-                  stdlib
+                  stdlib,
+                  cowlib,
+                  ranch,
+                  cowboy
                  ]},
   {mod, { skydeo_app, []}},
   {env, []}

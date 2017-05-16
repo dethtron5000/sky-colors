@@ -24,5 +24,7 @@ start_link() ->
 
 init([]) ->
 	Parser = ?CHILD(skydeo_parser,worker),
-    {ok, { {one_for_one, 5, 10}, [Parser]} }.
+	Webserver = ?CHILD(skydeo_webserver,worker),
+
+    {ok, { {one_for_one, 5, 10}, [Parser, Webserver]} }.
 
