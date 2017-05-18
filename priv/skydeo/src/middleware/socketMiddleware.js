@@ -1,13 +1,15 @@
+import { surveyEvent, topicEvent } from '../actions/websocketActions';
 import { DISCONNECT, CONNECT, connected, disconnected } from '../actions/websocketActions';
 
 const url = 'ws://pulse.ideo.com/pulse_events';
 
 //const url = 'ws://localhost:8000/pulse_events'
-const socketMiddleware = (function () {
-  var socket = null;
+const socketMiddleware = (() => {
+  let socket = null;
 
   const onOpen = (ws, store, token) => evt => {
     //Send a handshake, or authenticate with remote end
+    console.log(evt);
 
     //Tell the store we're connected
     store.dispatch(connected());
@@ -25,15 +27,17 @@ const socketMiddleware = (function () {
     console.log(msg);
     switch (msg.type) {
       case 'POLL':
+
         //Dispatch an action that adds the received message to our state
         store.dispatch(surveyEvent(msg));
         break;
       case 'TOPIC':
+
         //Dispatch an action that adds the received message to our state
         store.dispatch(topicEvent(msg));
         break;
       default:
-        console.log("Received unknown message type: '" + msg.type + "'");
+        console.log('Received unknown message type: \'' + msg.type + '\'');
         break;
     }
   };
@@ -43,10 +47,12 @@ const socketMiddleware = (function () {
 
       //The user wants us to connect
       case CONNECT:
+
         //Start a new connection to the server
         if (socket != null) {
           socket.close();
         }
+
         //Send an action that shows a "connecting..." status for now
         //store.dispatch(actions.connecting());
 
@@ -60,7 +66,7 @@ const socketMiddleware = (function () {
 
       //The user wants us to disconnect
       case DISCONNECT:
-        if (socket != null) {
+        if (socket !== null) {
           socket.close();
         }
 
