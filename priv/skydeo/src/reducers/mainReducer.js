@@ -1,22 +1,18 @@
 import {
-    REQUEST_LOGIN_TOKEN,
-    RECEIVED_LOGIN_TOKEN
-} from '../actions/authActions';
+    MSG,
+} from '../actions/websocketActions';
 
 const initialState = {
-    loading: false,
-    token: '',
-  };
+  loading: false,
+  token: '',
+};
 
-function auth(state = initialState, action) {
+export default function mr(state = initialState, action) {
   switch (action.type) {
-      case REQUEST_LOGIN_TOKEN:
-        return Object.assign({}, state, { loading: true });
-      case RECEIVED_LOGIN_TOKEN:
-        return Object.assign({}, state, { token: action.token });
-      default:
-        return state;
-    }
-}
+    case MSG:
+      return Object.assign({}, state, { loading: action.message });
 
-export auth;
+    default:
+      return state;
+  }
+}

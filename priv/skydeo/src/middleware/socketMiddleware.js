@@ -1,22 +1,26 @@
-import { surveyEvent, topicEvent } from '../actions/websocketActions';
-import { DISCONNECT, CONNECT, connected, disconnected } from '../actions/websocketActions';
+import { surveyEvent,
+  topicEvent,
+  DISCONNECT,
+  CONNECT,
+  connected,
+  disconnected } from '../actions/websocketActions';
 
 const url = 'ws://pulse.ideo.com/pulse_events';
 
-//const url = 'ws://localhost:8000/pulse_events'
+// const url = 'ws://localhost:8000/pulse_events'
 const socketMiddleware = (() => {
   let socket = null;
 
-  const onOpen = (ws, store, token) => evt => {
-    //Send a handshake, or authenticate with remote end
+  const onOpen = (ws, store) => (evt) => {
+    // Send a handshake, or authenticate with remote end
     console.log(evt);
 
-    //Tell the store we're connected
+    // Tell the store we're connected
     store.dispatch(connected());
   };
 
-  const onClose = (ws, store) => evt => {
-    //Tell the store we've disconnected
+  const onClose = (ws, store) => (evt) => {
+    // Tell the store we've disconnected
     store.dispatch(disconnected());
   };
 

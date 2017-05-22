@@ -1,7 +1,3 @@
-import { route } from '../actions/routeActions';
-import { BASE_URL, SCENES } from '../actions/constants';
-
-import _ from 'lodash';
 
 export const CONNECT = 'CONNECT';
 export const DISCONNECT = 'DISCONNECT';
@@ -9,27 +5,35 @@ export const DISCONNECT = 'DISCONNECT';
 export const CONNECTED = 'CONNECTED';
 export const DISCONNECTED = 'DISCONNECTED';
 
+export const MSG = 'MESSAGE';
+
 export function connected() {
   return {
-      type: CONNECTED,
-    };
+    type: CONNECTED,
+  };
 }
 
 export function disconnected() {
   return {
-      type: DISCONNECTED,
-    };
+    type: DISCONNECTED,
+  };
 }
 
 export function connect() {
   return {
-      type: CONNECT,
-    };
+    type: CONNECT,
+  };
 }
 
 export function disconnect() {
   return {
-      type: DISCONNECT,
-    };
+    type: DISCONNECT,
+  };
 }
 
+export function msg() {
+  return {
+    type: MSG,
+    message: 'yep',
+  };
+}
