@@ -1,8 +1,8 @@
-import React, { Component } from 'react';
+import React from 'react';
 import ReactDOM from 'react-dom';
 import { createStore, applyMiddleware } from 'redux';
 import { Provider } from 'react-redux';
-import { Router, Route, hashHistory } from 'react-router';
+import { Route, HashRouter } from 'react-router-dom';
 
 import mr from './reducers/mainReducer';
 import App from './App';
@@ -14,8 +14,8 @@ const store = createStore(mr, applyMiddleware(socketMiddleware));
 
 ReactDOM.render((
   <Provider store={store}>
-    <Router history={hashHistory}>
+    <HashRouter>
       <Route path="/" component={App} />
-    </Router>
+    </HashRouter>
   </Provider>
 ), document.getElementById('root'));
