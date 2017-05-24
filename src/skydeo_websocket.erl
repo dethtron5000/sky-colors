@@ -9,16 +9,17 @@ init(Req, Opts) ->
 	{cowboy_websocket, Req, Opts}.
 
 websocket_init(State) ->
-	erlang:start_timer(1000, self(), <<"Hello!">>),
+	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>, <<"Hello!">>}]})),
 	{ok, State}.
 
 websocket_handle({text, Msg}, State) ->
-	{reply, {text, << "That's what she said! ", Msg/binary >>}, State};
+	{reply, {text, jiffy:encode({[{<<"msg">>,<< "That's what she said! ", Msg/binary >>}]}), State}};
 websocket_handle(_Data, State) ->
+	io:format("~p~n",[_Data]),
 	{ok, State}.
 
 websocket_info({timeout, _Ref, Msg}, State) ->
-	erlang:start_timer(1000, self(), <<"How' you doin'?">>),
+	erlang:start_timer(1000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
 	{reply, {text, Msg}, State};
 websocket_info(_Info, State) ->
 	{ok, State}.

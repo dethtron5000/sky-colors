@@ -5,7 +5,7 @@ import { surveyEvent,
   connected,
   disconnected } from '../actions/websocketActions';
 
-const url = 'ws://pulse.ideo.com/pulse_events';
+const url = 'ws://localhost:8080/websocket';
 
 // const url = 'ws://localhost:8000/pulse_events'
 const socketMiddleware = (() => {
