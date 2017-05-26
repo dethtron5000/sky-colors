@@ -66,7 +66,6 @@ code_change(_OldVsn, State, _Extra) ->
 
 parse_file(File,_State) ->
 	{ok, Data} = file:read_file(File),
-	%io:format("~p~n",[Data]),
 	Opts = [
 		{"resize", "1600@"},
 		%{"scale", "200x200"},
@@ -74,18 +73,16 @@ parse_file(File,_State) ->
 		{"colors", 16},
 		{"colorspace", "RGB"}
 	],
-	{ok, [Out]} = emagick:convert(Data,jpg,txt,Opts),
-	Z = binary:split(Out,<<"\n">>,[global]),
+	{ok, [Out]} = emagick:convert(Data,jpg, txt, Opts),
+	Z = binary:split(Out,<<"\n">>, [global]),
 	ColorElems = lists:map(fun extract_colors/1, Z),
-	io:format("~P~n",[ColorElems,100]),
 	Zout = lists:foldl(fun accumulator/2, orddict:new(), ColorElems),
-	io:format("~P~n",[Zout,100]). 
+	gen_fsm:send_event(skydeo_message_handler, {newimage, Zout}). 
 
 extract_colors(ColorLine) ->
 	Colors = [hex,r,g,b],
 	% ,([\d]{1,3}),([\d]{1,3})\\)
 	Z = re:run(ColorLine, get_pattern(),[{capture,Colors,binary}]),
-	io:format("~P~P~n",[ColorLine,100,Z,100]),
 	parse_match(Z,Colors).
 
 parse_match({match,ColorList},Colors) ->

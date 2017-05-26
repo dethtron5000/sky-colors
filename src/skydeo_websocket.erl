@@ -11,28 +11,31 @@ init(Req, Opts) ->
 	{cowboy_websocket, Req, Opts}.
 
 websocket_init(State) ->
-	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>, <<"Hello!">>}]})),
 	erlang:start_timer(5000, self(), ping),
-
+	gen_fsm:send_event(skydeo_message_handler,{newconn,self()}),
 	{ok, State, hibernate}.
 
 websocket_handle({text, Msg}, State) ->
 	Outmsg = {[{<<"msg">>,<< "That's what she said! ", Msg/binary >>}]},
 	{reply, {text, jiffy:encode(Outmsg)}, State, hibernate};
+websocket_handle(pong, State) ->
+	{ok, State, hibernate};
 websocket_handle(_Data, State) ->
-	io:format("~p~n",[_Data]),
+	io:format("unhandled message: ~p~n",[_Data]),
 	{ok, State, hibernate}.
 
 websocket_info({timeout, _Ref, ping}, State) ->
 	erlang:start_timer(5000, self(), ping),
-	io:format("sending ping"),
 	{reply, ping, State, hibernate};
+
 websocket_info({timeout, _Ref, Msg}, State) ->
 	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
 	{reply, {text, Msg}, State, hibernate};
+
 websocket_info(_Info, State) ->
+	io:format("receiving info: ~p~n",[_Info]),
 	{ok, State, hibernate}.
 
 terminate(Reason, undefined, State) -> 
-	io:format("~p~n~p~n",[Reason,State]),
+	io:format("termination: ~p~n~p~n",[Reason,State]),
 	ok.

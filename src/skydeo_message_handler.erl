@@ -31,18 +31,25 @@ start_link() ->
 %% ------------------------------------------------------------------
 
 init(_Args) ->
-    {ok, initial_state_name, initial_state}.
+    {ok, disconnected, []}.
 
+%disconnected state
+%async events
 disconnected({newconn,Pid}, State) ->
     NewState = [Pid|State],
+    io:format("connecting ~p~n",[NewState]),
     {next_state, connected, NewState};
 
 disconnected(_Event, State) ->
+    io:format("disconnected~P~n",[_Event,20]),
     {next_state, disconnected, State}.
 
+%sync events
 disconnected(_Event, _From, State) ->
     {reply, ok, disconnected, State}.
 
+% connected state
+% async events
 connected({dropconn,Pid}, State) ->
     State2 = lists:delete(Pid,State),
     ConnState = check_clients(State2),
@@ -52,9 +59,15 @@ connected({newconn,Pid}, State) ->
     NewState = [Pid|State],
     {next_state, connected, NewState};
 
+connected({newimage, Img}, State) -> 
+    lists:foreach(fun(Pid) -> Pid ! {newimage, Img} end, State),
+    {next_state, connected, State};
+
 connected(_Event, State) ->
+    io:format("event: ~p~n",[_Event]),
     {next_state, connected, State}.
 
+% synch event
 connected(_Event, _From, State) ->
     {reply, ok, connected, State}.
 
