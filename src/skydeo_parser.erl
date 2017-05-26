@@ -101,8 +101,7 @@ accumulator(Elem, Acc) ->
 	Hex = proplists:get_value(hex,Elem),
 	Initial = Elem ++ [{count,1}],
 	case Hex of
-		undefined ->
-			Acc;
+		undefined -> Acc;
 		_ -> orddict:update(Hex, fun updater/1, Initial, Acc)
 	end.
 	

@@ -10,16 +10,24 @@ const url = 'ws://localhost:8080/websocket';
 // const url = 'ws://localhost:8000/pulse_events'
 const socketMiddleware = (() => {
   let socket = null;
+  let timer;
+
+  const ping = () => {
+    socket.send('ping');
+  };
 
   const onOpen = (ws, store) => (evt) => {
     // Send a handshake, or authenticate with remote end
     console.log(evt);
+    socket.send('yep');
+    // timer = setInterval(ping, 7000);
 
     // Tell the store we're connected
     store.dispatch(connected());
   };
 
   const onClose = (ws, store) => (evt) => {
+    clearInterval(timer);
     // Tell the store we've disconnected
     store.dispatch(disconnected());
   };
@@ -54,7 +62,7 @@ const socketMiddleware = (() => {
       case CONNECT:
 
         // Start a new connection to the server
-        if (socket != null) {
+        if (socket !== null) {
           socket.close();
         }
 

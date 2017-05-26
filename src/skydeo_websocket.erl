@@ -4,22 +4,35 @@
 -export([websocket_init/1]).
 -export([websocket_handle/2]).
 -export([websocket_info/2]).
+-export([terminate/3]).
 
 init(Req, Opts) ->
+	process_flag(trap_exit, true),
 	{cowboy_websocket, Req, Opts}.
 
 websocket_init(State) ->
 	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>, <<"Hello!">>}]})),
-	{ok, State}.
+	erlang:start_timer(5000, self(), ping),
+
+	{ok, State, hibernate}.
 
 websocket_handle({text, Msg}, State) ->
-	{reply, {text, jiffy:encode({[{<<"msg">>,<< "That's what she said! ", Msg/binary >>}]}), State}};
+	Outmsg = {[{<<"msg">>,<< "That's what she said! ", Msg/binary >>}]},
+	{reply, {text, jiffy:encode(Outmsg)}, State, hibernate};
 websocket_handle(_Data, State) ->
 	io:format("~p~n",[_Data]),
-	{ok, State}.
+	{ok, State, hibernate}.
 
+websocket_info({timeout, _Ref, ping}, State) ->
+	erlang:start_timer(5000, self(), ping),
+	io:format("sending ping"),
+	{reply, ping, State, hibernate};
 websocket_info({timeout, _Ref, Msg}, State) ->
-	erlang:start_timer(1000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
-	{reply, {text, Msg}, State};
+	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
+	{reply, {text, Msg}, State, hibernate};
 websocket_info(_Info, State) ->
-	{ok, State}.
+	{ok, State, hibernate}.
+
+terminate(Reason, undefined, State) -> 
+	io:format("~p~n~p~n",[Reason,State]),
+	ok.
