@@ -24,9 +24,15 @@ websocket_handle(_Data, State) ->
 	io:format("unhandled message: ~p~n",[_Data]),
 	{ok, State, hibernate}.
 
+% pings
 websocket_info({timeout, _Ref, ping}, State) ->
 	erlang:start_timer(5000, self(), ping),
 	{reply, ping, State, hibernate};
+
+% new images
+websocket_info({newimage, Img}, State) ->
+	io:format("~p~n",[Img]),
+	{reply, {text, jiffy:encode({Img})}, State, hibernate};
 
 websocket_info({timeout, _Ref, Msg}, State) ->
 	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
