@@ -1,9 +1,10 @@
-import { surveyEvent,
+import { imgEvt,
   topicEvent,
   DISCONNECT,
   CONNECT,
   connected,
-  disconnected } from '../actions/websocketActions';
+  disconnected,
+  NEWIMG } from '../actions/websocketActions';
 
 const url = 'ws://localhost:8080/websocket';
 
@@ -38,10 +39,10 @@ const socketMiddleware = (() => {
     console.log('received message ');
     console.log(msg);
     switch (msg.type) {
-      case 'POLL':
+      case NEWIMG:
 
         // Dispatch an action that adds the received message to our state
-        store.dispatch(surveyEvent(msg));
+        store.dispatch(imgEvt(msg));
         break;
       case 'TOPIC':
 

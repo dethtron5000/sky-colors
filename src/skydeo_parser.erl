@@ -96,17 +96,21 @@ get_pattern() ->
 
 accumulator(Elem, Acc) ->
 	Hex = proplists:get_value(hex,Elem),
-	Initial = Elem ++ [{count,1}],
 	case Hex of
 		undefined -> Acc;
-		_ -> orddict:update(Hex, fun updater/1, {Initial}, Acc)
+		_ -> orddict:update(Hex, fun updater/1, {initialize(Elem)}, Acc)
 	end.
 	
+initialize(Elem) ->
+	Outlist = [proplists:lookup(hex,Elem)],
+	OutlistR = Outlist ++ [{r,binary_to_integer(proplists:get_value(r,Elem))}],
+	OutlistG = OutlistR ++ [{g,binary_to_integer(proplists:get_value(g,Elem))}],
+	OutlistB = OutlistG ++ [{b,binary_to_integer(proplists:get_value(b,Elem))}],
+	OutlistB ++ [{count,1}].	
+
 updater({Elem}) ->
 	Val = proplists:get_value(count,Elem),
 	NewList = proplists:delete(count, Elem),
 	{NewList ++ [{count, Val + 1}]}.
-
-
 	
 

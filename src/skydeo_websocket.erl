@@ -31,8 +31,9 @@ websocket_info({timeout, _Ref, ping}, State) ->
 
 % new images
 websocket_info({newimage, Img}, State) ->
-	io:format("~p~n",[Img]),
-	{reply, {text, jiffy:encode({Img})}, State, hibernate};
+	L = [X || {_,X} <- Img],
+	Out = format_message(newimage,L),
+	{reply, {text, jiffy:encode(Out)}, State, hibernate};
 
 websocket_info({timeout, _Ref, Msg}, State) ->
 	erlang:start_timer(10000, self(), jiffy:encode({[{<<"msg">>,<<"How' you doin'?">>}]})),
@@ -42,6 +43,10 @@ websocket_info(_Info, State) ->
 	io:format("receiving info: ~p~n",[_Info]),
 	{ok, State, hibernate}.
 
+% catch terminations
 terminate(Reason, undefined, State) -> 
 	io:format("termination: ~p~n~p~n",[Reason,State]),
 	ok.
+
+format_message(Type,Contents) ->
+	{[{type,Type},{message,Contents}]}.

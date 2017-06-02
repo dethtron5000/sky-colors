@@ -7,6 +7,8 @@ export const DISCONNECTED = 'DISCONNECTED';
 
 export const MSG = 'MESSAGE';
 
+export const NEWIMG = 'newimage';
+
 export function connected() {
   return {
     type: CONNECTED,
@@ -35,5 +37,12 @@ export function msg() {
   return {
     type: MSG,
     message: 'yep',
+  };
+}
+
+export function imgEvt(message) {
+  return {
+    type: NEWIMG,
+    message,
   };
 }
