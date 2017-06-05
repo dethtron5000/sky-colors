@@ -7,9 +7,11 @@ const mapStateToProps = state => ({ appState: state });
 
 const mapDispatchToProps = () => ({});
 
-const makeY = (size, domain) => d3.scaleLinear()
+const makeScale = (size, domain) => d3.scaleLinear()
           .rangeRound([0, size])
           .domain([0, domain]).nice();
+
+// const color = d => d.hex;
 
 class CloudGraphInner extends Component {
 
@@ -19,34 +21,77 @@ class CloudGraphInner extends Component {
   }
 
   componentDidMount() {
-    const yscale = makeY(this.props.height);
+    const yscale = makeScale(this.props.height, 13);
+
+    const xscale = makeScale(this.props.width, this.props.appState.img.length);
+
     this.bargraph = d3.select(this.target).append('svg')
       .attr('height', this.props.height)
       .attr('width', this.props.width)
       .append('g');
 
-    const keys = Object.keys(this.props.appState.img);
+    // const stack = d3.stack().keys(d3.range(16));
 
+    /* const accessor = d3.stack()
+      .value((d, i) => d[i].count)
+      .keys(d3.range(13))(this.props.appState.img);
+*/
     const graphholder = this.bargraph.selectAll('.stack')
-        .data(d3.stack().keys(keys)(vals))
-        .enter().append('g')
-          .attr('fill', color)
-          .attr('class', 'stack')
-        .selectAll('rect')
-        .data((d) => { return d; })
-        .enter().append('rect')
-          .attr('x', function (d) {return x(d[0]);})
-          .attr('y', 0)
-          .attr('width', function (d) { return x(d[1]) - x(d[0]); })
-          .attr('height', 37);
+      .data(this.props.appState.img)
+      .enter().append('g')
+        .attr('class', 'stack')
+        .attr('x', (d, i) => i * 37)
+      .selectAll('rect')
+      .data(d => d)
+      .enter()
+        .append('rect')
+        .attr('y', (d, i, data) => {
+          console.log(d, i, data);
+          if (i === 0) {
+            return 0;
+          }
+          return d.r;
+        })
+        .attr('x', 0)
+        .attr('height', d => yscale(d[1]) - yscale(d[0]))
+        .attr('width', 37)
+        .attr('fill', function(d) { console.log(d); });
 
     graphholder.exit().remove();
 
     graphholder.transition().duration(1000);
   }
 
-  componentDidUpdate(prevProps, prevState) {
+  componentDidUpdate() {
+    const yscale = makeScale(this.props.height, 13);
 
+    const xscale = makeScale(this.props.width, this.props.appState.img.length);
+
+    const accessor = d3.stack()
+      .value((d, i) => d[i].count)
+      .keys(d3.range(13))(this.props.appState.img);
+
+
+    const graphholder = this.bargraph.selectAll('.stack')
+      .data(this.props.appState.img)
+      .enter().append('g')
+        .attr('class', 'stack')
+        .attr('x', (d, i) => i * 37)
+      .selectAll('rect')
+      .data(d => d)
+      .enter()
+        .append('rect')
+        .attr('y', (d, i, data) => {
+          if (i === 0) {
+            return 0;
+          }
+          console.log(this);
+          return yscale(data[i-1].y + data[i-1].count);
+        })
+        .attr('x', 0)
+        .attr('height', d => yscale(d.count))
+        .attr('width', 37)
+        .attr('fill', d => d.hex);
   }
 
   render() {
@@ -58,13 +103,15 @@ CloudGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   appState: PropTypes.shape({
-    img: PropTypes.shape({
-      r: PropTypes.number.isRequired,
-      g: PropTypes.number.isRequired,
-      b: PropTypes.number.isRequired,
-      hex: PropTypes.string.isRequired,
-      count: PropTypes.number.isRequired,
-    }),
+    img: PropTypes.arrayOf(
+        PropTypes.arrayOf(
+          PropTypes.shape({
+            r: PropTypes.number.isRequired,
+            g: PropTypes.number.isRequired,
+            b: PropTypes.number.isRequired,
+            hex: PropTypes.string.isRequired,
+            count: PropTypes.number.isRequired,
+          }))),
   }).isRequired,
 };
 

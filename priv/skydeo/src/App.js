@@ -13,7 +13,7 @@ const App = () => (<div>
       To get started, edit <code>src/App.js</code> and save to reload.
     </p>
   </div>
-  <CloudGraph width="500" height="500" />
+  <CloudGraph width={500} height={500} />
 </div>);
 
 export default App;

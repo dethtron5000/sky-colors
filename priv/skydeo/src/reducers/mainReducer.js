@@ -15,7 +15,7 @@ export default function mr(state = initialState, action) {
     case MSG:
       return Object.assign({}, state, { loading: action.message });
     case NEWIMG:
-      return Object.assign({}, state, { img: action.message.message });
+      return Object.assign({}, state, { img: state.img.concat([action.message.message]) });
     default:
       return state;
   }
