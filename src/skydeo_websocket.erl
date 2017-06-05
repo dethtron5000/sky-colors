@@ -32,7 +32,7 @@ websocket_info({timeout, _Ref, ping}, State) ->
 % new images
 websocket_info({newimage, Img}, State) ->
 	L = [X || {_,X} <- Img],
-	Out = format_message(newimage,L),
+	Out = format_message(newimage, L),
 	{reply, {text, jiffy:encode(Out)}, State, hibernate};
 
 websocket_info({timeout, _Ref, Msg}, State) ->
