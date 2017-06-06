@@ -8,54 +8,52 @@ const mapStateToProps = state => ({ appState: state });
 const mapDispatchToProps = () => ({});
 
 const makeScale = (size, domain) => d3.scaleLinear()
-          .rangeRound([0, size])
+          .range([0, size])
           .domain([0, domain]).nice();
 
-// const color = d => d.hex;
+const group = function group(height, w) {
+  return function z(d) {
+    const sum = d3.sum(d, j => j.count);
+    const yscale = makeScale(height, sum);
+    let runningcount = 0;
+    d3.select(this)
+      .selectAll('rect')
+        .data(d)
+        .enter()
+        .append('rect')
+        .attr('fill', j => `#${j.hex}`)
+        .attr('width', w)
+        .attr('height', j => yscale(j.count))
+        .attr('y', (j, k) => {
+          if (k === 0) {
+            return 0;
+          }
+
+          const out = yscale(d[k - 1].count + runningcount);
+          runningcount += d[k - 1].count;
+          return out;
+        });
+  };
+};
 
 class CloudGraphInner extends Component {
 
   constructor(props) {
     super(props);
     this.target = '#graph';
+    this.padding = 3;
   }
 
   componentDidMount() {
-    const yscale = makeScale(this.props.height, 13);
-
-    const xscale = makeScale(this.props.width, this.props.appState.img.length);
-
     this.bargraph = d3.select(this.target).append('svg')
       .attr('height', this.props.height)
       .attr('width', this.props.width)
       .append('g');
 
-    // const stack = d3.stack().keys(d3.range(16));
-
-    /* const accessor = d3.stack()
-      .value((d, i) => d[i].count)
-      .keys(d3.range(13))(this.props.appState.img);
-*/
     const graphholder = this.bargraph.selectAll('.stack')
       .data(this.props.appState.img)
       .enter().append('g')
-        .attr('class', 'stack')
-        .attr('x', (d, i) => i * 37)
-      .selectAll('rect')
-      .data(d => d)
-      .enter()
-        .append('rect')
-        .attr('y', (d, i, data) => {
-          console.log(d, i, data);
-          if (i === 0) {
-            return 0;
-          }
-          return d.r;
-        })
-        .attr('x', 0)
-        .attr('height', d => yscale(d[1]) - yscale(d[0]))
-        .attr('width', 37)
-        .attr('fill', function(d) { console.log(d); });
+        .attr('class', 'stack');
 
     graphholder.exit().remove();
 
@@ -63,35 +61,15 @@ class CloudGraphInner extends Component {
   }
 
   componentDidUpdate() {
-    const yscale = makeScale(this.props.height, 13);
-
-    const xscale = makeScale(this.props.width, this.props.appState.img.length);
-
-    const accessor = d3.stack()
-      .value((d, i) => d[i].count)
-      .keys(d3.range(13))(this.props.appState.img);
-
+    const w = ((this.props.width - (9 * this.padding)) / 9);
 
     const graphholder = this.bargraph.selectAll('.stack')
       .data(this.props.appState.img)
-      .enter().append('g')
-        .attr('class', 'stack')
-        .attr('x', (d, i) => i * 37)
-      .selectAll('rect')
-      .data(d => d)
       .enter()
-        .append('rect')
-        .attr('y', (d, i, data) => {
-          if (i === 0) {
-            return 0;
-          }
-          console.log(this);
-          return yscale(data[i-1].y + data[i-1].count);
-        })
-        .attr('x', 0)
-        .attr('height', d => yscale(d.count))
-        .attr('width', 37)
-        .attr('fill', d => d.hex);
+        .append('g')
+        .each(group(this.props.height, w))
+        .attr('class', 'stack')
+        .attr('transform', (d, i) => `translate(${i * (w + this.padding)})`);
   }
 
   render() {
