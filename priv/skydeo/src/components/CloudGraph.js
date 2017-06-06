@@ -9,7 +9,7 @@ const mapDispatchToProps = () => ({});
 
 const makeScale = (size, domain) => d3.scaleLinear()
           .range([0, size])
-          .domain([0, domain]).nice();
+          .domain([0, domain]);
 
 const group = function group(height, w) {
   return function z(d) {
@@ -21,6 +21,7 @@ const group = function group(height, w) {
         .data(d)
         .enter()
         .append('rect')
+        .transition(1000)
         .attr('fill', j => `#${j.hex}`)
         .attr('width', w)
         .attr('height', j => yscale(j.count))
@@ -70,6 +71,8 @@ class CloudGraphInner extends Component {
         .each(group(this.props.height, w))
         .attr('class', 'stack')
         .attr('transform', (d, i) => `translate(${i * (w + this.padding)})`);
+
+    graphholder.exit().remove();
   }
 
   render() {
