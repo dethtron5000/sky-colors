@@ -14,23 +14,43 @@ const makeScale = (size, domain) => d3.scaleLinear()
 const group = function group(height, w) {
   return function z(d) {
     const sum = d3.sum(d, j => j.count);
-    const yscale = makeScale(height, sum);
+    const xscale = makeScale(w, sum);
     let runningcount = 0;
-    d3.select(this)
+    const v = d3.select(this)
       .selectAll('rect')
-        .data(d)
-        .enter()
+        .data(d);
+
+    v
+      .transition(1000)
+      .attr('fill', j => `#${j.hex}`)
+      .attr('width', j => xscale(j.count))
+      .attr('height', height)
+      .attr('x', (j, k) => {
+        if (k === 0) {
+          return 0;
+        }
+
+        const out = xscale(d[k - 1].count + runningcount);
+        runningcount += d[k - 1].count;
+        return out;
+      });
+
+    v
+      .exit()
+      .remove();
+    v
+      .enter()
         .append('rect')
         .transition(1000)
         .attr('fill', j => `#${j.hex}`)
-        .attr('width', w)
-        .attr('height', j => yscale(j.count))
-        .attr('y', (j, k) => {
+        .attr('width', j => xscale(j.count))
+        .attr('height', height)
+        .attr('x', (j, k) => {
           if (k === 0) {
             return 0;
           }
 
-          const out = yscale(d[k - 1].count + runningcount);
+          const out = xscale(d[k - 1].count + runningcount);
           runningcount += d[k - 1].count;
           return out;
         });
@@ -62,15 +82,20 @@ class CloudGraphInner extends Component {
   }
 
   componentDidUpdate() {
-    const w = ((this.props.width - (9 * this.padding)) / 9);
+    const h = ((this.props.height - (9 * this.padding)) / 9);
 
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img)
+      .data(this.props.appState.img);
+
+    graphholder
       .enter()
         .append('g')
-        .each(group(this.props.height, w))
+        .each(group(h, this.props.width))
         .attr('class', 'stack')
-        .attr('transform', (d, i) => `translate(${i * (w + this.padding)})`);
+        .attr('transform', (d, i) => `translate(0,${i * (h + this.padding)})`);
+
+    graphholder
+      .each(group(h, this.props.width));
 
     graphholder.exit().remove();
   }

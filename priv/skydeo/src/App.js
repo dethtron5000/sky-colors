@@ -4,7 +4,7 @@ import CloudGraph from './components/CloudGraph';
 
 const App = () => (<div>
   <div className="App" />
-  <CloudGraph width={0.9 * window.innerWidth} height={0.9 * window.innerHeight} />
+  <CloudGraph width={window.innerWidth} height={window.innerHeight} />
 </div>);
 
 export default App;
