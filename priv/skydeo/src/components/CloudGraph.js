@@ -16,24 +16,26 @@ const group = function group(height, w) {
     const sum = d3.sum(d, j => j.count);
     const xscale = makeScale(w, sum);
     let runningcount = 0;
+    const scalefunc = (j, k) => {
+      if (k === 0) {
+        return 0;
+      }
+
+      const out = xscale(d[k - 1].count + runningcount);
+      runningcount += d[k - 1].count;
+      return out;
+    };
+
     const v = d3.select(this)
       .selectAll('rect')
         .data(d);
 
     v
-      .transition(1000)
+      .transition()
+      .duration(5000)
       .attr('fill', j => `#${j.hex}`)
       .attr('width', j => xscale(j.count))
-      .attr('height', height)
-      .attr('x', (j, k) => {
-        if (k === 0) {
-          return 0;
-        }
-
-        const out = xscale(d[k - 1].count + runningcount);
-        runningcount += d[k - 1].count;
-        return out;
-      });
+      .attr('x', scalefunc);
 
     v
       .exit()
@@ -41,19 +43,14 @@ const group = function group(height, w) {
     v
       .enter()
         .append('rect')
-        .transition(1000)
         .attr('fill', j => `#${j.hex}`)
         .attr('width', j => xscale(j.count))
         .attr('height', height)
-        .attr('x', (j, k) => {
-          if (k === 0) {
-            return 0;
-          }
-
-          const out = xscale(d[k - 1].count + runningcount);
-          runningcount += d[k - 1].count;
-          return out;
-        });
+        .attr('x', scalefunc)
+        .style('opacity', 0)
+        .transition()
+        .duration(5000)
+        .style('opacity', 1);
   };
 };
 
