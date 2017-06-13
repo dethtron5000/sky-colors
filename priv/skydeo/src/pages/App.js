@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import CloudGraph from './components/CloudGraph';
+import CloudGraph from '../components/CloudGraph';
 
 const App = () => (<div>
   <div className="App" />

@@ -7,8 +7,9 @@ import thunkMiddleware from 'redux-thunk';
 
 import { connect } from './actions/websocketActions';
 import mr from './reducers/mainReducer';
-import App from './App';
-
+import App from './pages/App';
+import GridPage from './pages/GridPage';
+import TreePage from './pages/TreePage';
 
 import socketMiddleware from './middleware/socketMiddleware';
 
@@ -20,7 +21,12 @@ store.dispatch(connect());
 ReactDOM.render((
   <Provider store={store}>
     <HashRouter>
-      <Route path="/" component={App} />
+      <div>
+        <Route exact path="/" component={App} />
+        <Route path="/grid" component={GridPage} />
+        <Route path="/tree" component={TreePage} />
+
+      </div>
     </HashRouter>
   </Provider>
 ), document.getElementById('root'));

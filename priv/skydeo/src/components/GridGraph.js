@@ -14,14 +14,14 @@ const makeScale = (size, domain) => d3.scaleLinear()
 const group = function group(height, w) {
   return function z(d) {
     const sum = d3.sum(d, j => j.count);
-    const xscale = makeScale(w, sum);
+    const yscale = makeScale(height, sum);
     let runningcount = 0;
     const scalefunc = (j, k) => {
       if (k === 0) {
         return 0;
       }
 
-      const out = xscale(d[k - 1].count + runningcount);
+      const out = yscale(d[k - 1].count + runningcount);
       runningcount += d[k - 1].count;
       return out;
     };
@@ -34,8 +34,8 @@ const group = function group(height, w) {
       .transition()
       .duration(5000)
       .attr('fill', j => `#${j.hex}`)
-      .attr('width', j => xscale(j.count))
-      .attr('x', scalefunc);
+      .attr('height', j => yscale(j.count))
+      .attr('y', scalefunc);
 
     v
       .exit()
@@ -44,9 +44,9 @@ const group = function group(height, w) {
       .enter()
         .append('rect')
         .attr('fill', j => `#${j.hex}`)
-        .attr('width', j => xscale(j.count))
-        .attr('height', height)
-        .attr('x', scalefunc)
+        .attr('height', j => yscale(j.count))
+        .attr('width', w)
+        .attr('y', scalefunc)
         .style('opacity', 0)
         .transition()
         .duration(5000)
@@ -54,7 +54,7 @@ const group = function group(height, w) {
   };
 };
 
-class CloudGraphInner extends Component {
+class GridGraphInner extends Component {
 
   constructor(props) {
     super(props);
@@ -79,22 +79,23 @@ class CloudGraphInner extends Component {
   }
 
   componentDidUpdate() {
-    const h = ((this.props.height - (9 * this.padding)) / 9);
+    const w = ((this.props.width - (3 * this.padding)) / 3);
+    const h = ((this.props.height - (3 * this.padding)) / 3);
 
     const graphholder = this.bargraph.selectAll('.stack')
       .data(this.props.appState.img);
 
-    graphholder.exit().remove();
-
     graphholder
       .enter()
         .append('g')
-        .each(group(h, this.props.width))
+        .each(group(h, w))
         .attr('class', 'stack')
-        .attr('transform', (d, i) => `translate(0,${i * (h + this.padding)})`);
+        .attr('transform', (d, i) => `translate(${(i % 3) * (w + this.padding)},${Math.floor(i / 3) * (h + this.padding)})`);
+
+    graphholder.exit().remove();
 
     graphholder
-      .each(group(h, this.props.width));
+      .each(group(h, w));
   }
 
   render() {
@@ -102,7 +103,7 @@ class CloudGraphInner extends Component {
   }
 }
 
-CloudGraphInner.propTypes = {
+GridGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   appState: PropTypes.shape({
@@ -118,10 +119,10 @@ CloudGraphInner.propTypes = {
   }).isRequired,
 };
 
-const CloudGraph = connect(
+const GridGraph = connect(
     mapStateToProps,
     mapDispatchToProps,
-)(CloudGraphInner);
+)(GridGraphInner);
 
-export default CloudGraph;
+export default GridGraph;
 
