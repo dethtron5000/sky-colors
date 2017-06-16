@@ -17,17 +17,16 @@ const socketMiddleware = (() => {
     socket.send('ping');
   };
 
-  const onOpen = (ws, store) => (evt) => {
+  const onOpen = (ws, store) => () => {
     // Send a handshake, or authenticate with remote end
-    console.log(evt);
-    socket.send('yep');
-    // timer = setInterval(ping, 7000);
+    socket.send('hello');
+
 
     // Tell the store we're connected
     store.dispatch(connected());
   };
 
-  const onClose = (ws, store) => (evt) => {
+  const onClose = (ws, store) => () => {
     clearInterval(timer);
     // Tell the store we've disconnected
     store.dispatch(disconnected());
@@ -36,8 +35,6 @@ const socketMiddleware = (() => {
   const onMessage = (ws, store) => (evt) => {
     // Parse the JSON message received on the websocket
     const msg = JSON.parse(evt.data);
-    console.log('received message ');
-    console.log(msg);
     switch (msg.type) {
       case NEWIMG:
 

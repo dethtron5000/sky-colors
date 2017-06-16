@@ -18,8 +18,10 @@ websocket_init(State) ->
 websocket_handle({text, Msg}, State) ->
 	Outmsg = {[{<<"msg">>,<< "That's what she said! ", Msg/binary >>}]},
 	{reply, {text, jiffy:encode(Outmsg)}, State, hibernate};
+
 websocket_handle(pong, State) ->
 	{ok, State, hibernate};
+
 websocket_handle(_Data, State) ->
 	io:format("unhandled message: ~p~n",[_Data]),
 	{ok, State, hibernate}.
@@ -30,9 +32,10 @@ websocket_info({timeout, _Ref, ping}, State) ->
 	{reply, ping, State, hibernate};
 
 % new images
-websocket_info({newimage, Img}, State) ->
+websocket_info({newimage, Img, Location}, State) ->
 	L = [X || {_,X} <- Img],
-	Out = format_message(newimage, L),
+	Msg = {[{location, Location}, {img, L}]},
+	Out = format_message(newimage, Msg),
 	{reply, {text, jiffy:encode(Out)}, State, hibernate};
 
 websocket_info({timeout, _Ref, Msg}, State) ->

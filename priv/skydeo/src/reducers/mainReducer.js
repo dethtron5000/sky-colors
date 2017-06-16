@@ -7,17 +7,31 @@ const initialState = {
   loading: false,
   token: '',
   connected: false,
-  img: [],
+  img: {
+    cambridge: [],
+    newyork: [],
+    chicago: [],
+    sanfrancisco: [],
+    paloalto: [],
+    tokyo: [],
+    shanghai: [],
+    munich: [],
+    london: [],
+  },
 };
 
 export default function mr(state = initialState, action) {
-  const v = state.img.slice();
+  const newimg = state.img;
   switch (action.type) {
     case MSG:
       return Object.assign({}, state, { loading: action.message });
     case NEWIMG:
-      v.unshift(action.message.message);
-      return Object.assign({}, state, { img: v });
+      if (Object.prototype.hasOwnProperty.call(newimg, action.message.location)) {
+        newimg[action.message.location] = action.message;
+        return Object.assign({}, state, { img: newimg });
+      }
+
+      return state;
     default:
       return state;
   }

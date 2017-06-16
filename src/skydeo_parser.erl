@@ -19,7 +19,7 @@
 %% Called by async_function_wrapper
 %% ------------------------------------------------------------------
 
--export([parse_file/2]).
+-export([parse_file/3]).
 
 %% ------------------------------------------------------------------
 %% API Function Definitions
@@ -36,11 +36,11 @@ start_link() ->
 init(Args) ->
     {ok, Args}.
 
-handle_call({parse,File}, From, State) ->
+handle_call({parse, File, Location}, From, State) ->
 	skydeo_util:async_func_wrapper(
         ?MODULE, 
         parse_file, 
-        [File], 
+        [File, Location], 
         From, 
         State),
     {noreply,State};
@@ -64,7 +64,7 @@ code_change(_OldVsn, State, _Extra) ->
 %% Internal Function Definitions
 %% ------------------------------------------------------------------
 
-parse_file(File,_State) ->
+parse_file(File, Location, _State) ->
 	{ok, Data} = file:read_file(File),
 	Opts = [
 		{"resize", "1600@"},
@@ -77,7 +77,7 @@ parse_file(File,_State) ->
 	Z = binary:split(Out,<<"\n">>, [global]),
 	ColorElems = lists:map(fun extract_colors/1, Z),
 	Zout = lists:foldl(fun accumulator/2, orddict:new(), ColorElems),
-	gen_fsm:send_event(skydeo_message_handler, {newimage, Zout}). 
+	gen_fsm:send_event(skydeo_message_handler, {newimage, Zout, Location}). 
 
 extract_colors(ColorLine) ->
 	Colors = [hex,r,g,b],

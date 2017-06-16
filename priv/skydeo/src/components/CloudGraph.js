@@ -1,6 +1,8 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import StateModel from './StateModel';
+
 import * as d3 from 'd3';
 
 const mapStateToProps = state => ({ appState: state });

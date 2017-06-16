@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import StateModel from './StateModel';
 import * as d3 from 'd3';
 
 const mapStateToProps = state => ({ appState: state });
@@ -114,17 +115,7 @@ class TreeGraphInner extends Component {
 TreeGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  appState: PropTypes.shape({
-    img: PropTypes.arrayOf(
-        PropTypes.arrayOf(
-          PropTypes.shape({
-            r: PropTypes.number.isRequired,
-            g: PropTypes.number.isRequired,
-            b: PropTypes.number.isRequired,
-            hex: PropTypes.string.isRequired,
-            count: PropTypes.number.isRequired,
-          }))),
-  }).isRequired,
+  appState: StateModel.appState.isRequired,
 };
 
 const TreeGraph = connect(

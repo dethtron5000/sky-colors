@@ -35,7 +35,7 @@ init(_Args) ->
 
 %disconnected state
 %async events
-disconnected({newconn,Pid}, State) ->
+disconnected({newconn, Pid}, State) ->
     NewState = [Pid|State],
     io:format("connecting ~p~n",[NewState]),
     {next_state, connected, NewState};
@@ -50,17 +50,17 @@ disconnected(_Event, _From, State) ->
 
 % connected state
 % async events
-connected({dropconn,Pid}, State) ->
+connected({dropconn, Pid}, State) ->
     State2 = lists:delete(Pid,State),
     ConnState = check_clients(State2),
     {next_state, ConnState, State2};
 
-connected({newconn,Pid}, State) ->
+connected({newconn, Pid}, State) ->
     NewState = [Pid|State],
     {next_state, connected, NewState};
 
-connected({newimage, Img}, State) -> 
-    lists:foreach(fun(Pid) -> Pid ! {newimage, Img} end, State),
+connected({newimage, Img, Location}, State) -> 
+    lists:foreach(fun(Pid) -> Pid ! {newimage, Img, Location} end, State),
     {next_state, connected, State};
 
 connected(_Event, State) ->

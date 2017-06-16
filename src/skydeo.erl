@@ -1,6 +1,6 @@
 -module(skydeo).
 
--export([ensure_started/1,parse/1]).
+-export([ensure_started/1, parse/2, start/0]).
 
 ensure_deps_started(App) ->
 	application:load(App), 
@@ -19,9 +19,11 @@ ensure_started(App) ->
 			Else
 	end.
 
+start() ->
+	ensure_deps_started(skydeo).
 
-parse(File) ->
+parse(File, Location) ->
 	ensure_deps_started(skydeo),
-	gen_server:call(skydeo_parser,{parse,File},20000).
+	gen_server:call(skydeo_parser,{parse, File, Location},20000).
 
 
