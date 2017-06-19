@@ -14,6 +14,7 @@ const makeScale = (size, domain) => d3.scaleLinear()
 
 const group = function group(height, w) {
   return function z(d) {
+    console.log(d);
     const sum = d3.sum(d, j => j.count);
     const yscale = makeScale(height, sum);
     let runningcount = 0;
@@ -69,8 +70,9 @@ class GridGraphInner extends Component {
       .attr('width', this.props.width)
       .append('g');
 
+    console.log(this.props.appState);
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img)
+      .data(Object.values(this.props.appState.locations))
       .enter().append('g')
         .attr('class', 'stack');
 
@@ -80,11 +82,12 @@ class GridGraphInner extends Component {
   }
 
   componentDidUpdate() {
+    console.log(this.props.appState);
     const w = ((this.props.width - (3 * this.padding)) / 3);
     const h = ((this.props.height - (3 * this.padding)) / 3);
 
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img);
+      .data(Object.values(this.props.appState.locations));
 
     graphholder
       .enter()

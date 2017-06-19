@@ -35,6 +35,7 @@ const socketMiddleware = (() => {
   const onMessage = (ws, store) => (evt) => {
     // Parse the JSON message received on the websocket
     const msg = JSON.parse(evt.data);
+    console.log(msg);
     switch (msg.type) {
       case NEWIMG:
 
@@ -47,7 +48,7 @@ const socketMiddleware = (() => {
         store.dispatch(topicEvent(msg));
         break;
       default:
-
+        console.log(msg);
         console.log(`Received unknown message type: ${msg.type}`);
         break;
     }

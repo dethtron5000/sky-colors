@@ -40,9 +40,10 @@ export function msg() {
   };
 }
 
-export function imgEvt(message) {
+export function imgEvt(payload) {
+  console.log(payload);
   return {
     type: NEWIMG,
-    message,
+    payload: payload.message,
   };
 }
