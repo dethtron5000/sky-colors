@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import StateModel from './StateModel';
 import * as d3 from 'd3';
+
+import StateModel from './StateModel';
 
 const mapStateToProps = state => ({ appState: state });
 
@@ -13,10 +14,12 @@ const makeScale = (size, domain) => d3.scaleLinear()
           .domain([0, domain]);
 
 const group = function group(height, w) {
-  return function z(d) {
+  return function z(arr) {
+    const d = arr.img;
     const len = 16; // d.length;
     const max = d3.max(d, j => j.count);
     const xscale = makeScale(w, max);
+
     // let runningcount = 0;
     /* const scalefunc = (j, k) => {
       if (k === 0) {
@@ -69,6 +72,8 @@ class TreeGraphInner extends Component {
     super(props);
     this.target = '#graph';
     this.padding = 3;
+    this.w = ((this.props.width - (3 * this.padding)) / 3);
+    this.h = ((this.props.height - (3 * this.padding)) / 3);
   }
 
   componentDidMount() {
@@ -78,9 +83,10 @@ class TreeGraphInner extends Component {
       .append('g');
 
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img)
+      .data(Object.values(this.props.appState.locations))
       .enter().append('g')
-        .attr('class', 'stack');
+        .attr('class', 'stack')
+        .attr('transform', (d, i) => `translate(${(i % 3) * (this.w + this.padding)},${Math.floor(i / 3) * (this.h + this.padding)})`);
 
     graphholder.exit().remove();
 
@@ -88,23 +94,19 @@ class TreeGraphInner extends Component {
   }
 
   componentDidUpdate() {
-    const w = ((this.props.width - (3 * this.padding)) / 3);
-    const h = ((this.props.height - (3 * this.padding)) / 3);
-
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img);
+      .data(Object.values(this.props.appState.locations));
 
     graphholder
       .enter()
         .append('g')
-        .each(group(h, w))
-        .attr('class', 'stack')
-        .attr('transform', (d, i) => `translate(${(i % 3) * (w + this.padding)},${Math.floor(i / 3) * (h + this.padding)})`);
+        .each(group(this.h, this.w))
+        .attr('class', 'stack');
 
     graphholder.exit().remove();
 
     graphholder
-      .each(group(h, w));
+      .each(group(this.h, this.w));
   }
 
   render() {

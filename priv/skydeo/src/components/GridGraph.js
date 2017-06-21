@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import StateModel from './StateModel';
 import * as d3 from 'd3';
+
+import StateModel from './StateModel';
+import './fonts.css';
 
 const mapStateToProps = state => ({ appState: state });
 
@@ -13,8 +15,8 @@ const makeScale = (size, domain) => d3.scaleLinear()
           .domain([0, domain]);
 
 const group = function group(height, w) {
-  return function z(d) {
-    console.log(d);
+  return function z(arr) {
+    const d = arr.img;
     const sum = d3.sum(d, j => j.count);
     const yscale = makeScale(height, sum);
     let runningcount = 0;
@@ -34,13 +36,17 @@ const group = function group(height, w) {
 
     v
       .transition()
-      .duration(5000)
+      .duration(10000)
       .attr('fill', j => `#${j.hex}`)
       .attr('height', j => yscale(j.count))
-      .attr('y', scalefunc);
+      .attr('y', scalefunc)
+      .style('opacity', 1);
 
     v
       .exit()
+      .transition()
+      .duration(10000)
+      .style('opacity', 0)
       .remove();
     v
       .enter()
@@ -51,8 +57,10 @@ const group = function group(height, w) {
         .attr('y', scalefunc)
         .style('opacity', 0)
         .transition()
-        .duration(5000)
+        .duration(10000)
         .style('opacity', 1);
+
+    // ;
   };
 };
 
@@ -62,6 +70,8 @@ class GridGraphInner extends Component {
     super(props);
     this.target = '#graph';
     this.padding = 3;
+    this.w = ((this.props.width - (3 * this.padding)) / 3);
+    this.h = ((this.props.height - (3 * this.padding)) / 3);
   }
 
   componentDidMount() {
@@ -70,11 +80,36 @@ class GridGraphInner extends Component {
       .attr('width', this.props.width)
       .append('g');
 
-    console.log(this.props.appState);
+    const transformFunc = (d, i) => `translate(${(i % 3) * (this.w + this.padding)},${Math.floor(i / 3) * (this.h + this.padding)})`;
+
+    const objectData = Object.values(this.props.appState.locations);
+
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(Object.values(this.props.appState.locations))
-      .enter().append('g')
-        .attr('class', 'stack');
+      .data(objectData)
+      .enter();
+
+    const stack = graphholder
+      .append('g')
+        .attr('class', 'stack')
+        .attr('transform', transformFunc);
+
+    stack.append('g')
+      .attr('class', 'barholder');
+
+    stack.append('g')
+      .attr('class', 'textHolder');
+
+    this.bargraph.selectAll('.textHolder')
+      .data(objectData)
+      .append('text')
+        .attr('y', (this.h - 5))
+        .attr('x', 5)
+        .text((d, i) => {
+          console.log(d);
+          const v = Object.keys(this.props.appState.locations);
+          return v[i];
+        })
+        .attr('class', 'location');
 
     graphholder.exit().remove();
 
@@ -82,28 +117,23 @@ class GridGraphInner extends Component {
   }
 
   componentDidUpdate() {
-    console.log(this.props.appState);
-    const w = ((this.props.width - (3 * this.padding)) / 3);
-    const h = ((this.props.height - (3 * this.padding)) / 3);
-
-    const graphholder = this.bargraph.selectAll('.stack')
+    const graphholder = this.bargraph.selectAll('.barholder')
       .data(Object.values(this.props.appState.locations));
 
-    graphholder
+    /* graphholder
       .enter()
         .append('g')
-        .each(group(h, w))
-        .attr('class', 'stack')
-        .attr('transform', (d, i) => `translate(${(i % 3) * (w + this.padding)},${Math.floor(i / 3) * (h + this.padding)})`);
+        .each(group(this.h, this.w))
+        .attr('class', 'barholder'); */
 
     graphholder.exit().remove();
 
     graphholder
-      .each(group(h, w));
+      .each(group(this.h, this.w));
   }
 
   render() {
-    return (<div id="graph" />);
+    return (<div id='graph' />);
   }
 }
 

@@ -26,6 +26,7 @@ init([]) ->
 	Parser = ?CHILD(skydeo_parser,worker),
 	Webserver = ?CHILD(skydeo_webserver,worker),
 	MessageHandler = ?CHILD(skydeo_message_handler,worker),
+	Storage = ?CHILD(skydeo_storage,worker),
 
-    {ok, { {one_for_one, 5, 10}, [Parser, Webserver, MessageHandler]} }.
+    {ok, { {one_for_one, 5, 10}, [Parser, Webserver, MessageHandler, Storage]} }.
 

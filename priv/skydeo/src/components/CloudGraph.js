@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import StateModel from './StateModel';
-
 import * as d3 from 'd3';
+
+import StateModel from './StateModel';
 
 const mapStateToProps = state => ({ appState: state });
 
@@ -71,7 +71,7 @@ class CloudGraphInner extends Component {
       .append('g');
 
     const graphholder = this.bargraph.selectAll('.stack')
-      .data(this.props.appState.img)
+      .data(Object.values(this.props.appState.locations))
       .enter().append('g')
         .attr('class', 'stack');
 
@@ -107,17 +107,7 @@ class CloudGraphInner extends Component {
 CloudGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
-  appState: PropTypes.shape({
-    img: PropTypes.arrayOf(
-        PropTypes.arrayOf(
-          PropTypes.shape({
-            r: PropTypes.number.isRequired,
-            g: PropTypes.number.isRequired,
-            b: PropTypes.number.isRequired,
-            hex: PropTypes.string.isRequired,
-            count: PropTypes.number.isRequired,
-          }))),
-  }).isRequired,
+  appState: StateModel.appState.isRequired,
 };
 
 const CloudGraph = connect(

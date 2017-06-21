@@ -38,6 +38,8 @@ init(_Args) ->
 disconnected({newconn, Pid}, State) ->
     NewState = [Pid|State],
     io:format("connecting ~p~n",[NewState]),
+    Dat = gen_server:call(skydeo_storage,fetch_all),
+    fold_list(Dat),
     {next_state, connected, NewState};
 
 disconnected(_Event, State) ->
@@ -57,6 +59,8 @@ connected({dropconn, Pid}, State) ->
 
 connected({newconn, Pid}, State) ->
     NewState = [Pid|State],
+    Dat = gen_server:call(skydeo_storage,fetch_all),
+    fold_list(Dat),
     {next_state, connected, NewState};
 
 connected({newimage, Img, Location}, State) -> 
@@ -94,3 +98,13 @@ check_clients([]) ->
     disconnected;
 check_clients(_) ->
     connected.
+
+fold_list([]) ->
+    ok;
+fold_list([{H}|T]) ->
+    File = proplists:get_value(<<"file">>,H),
+    Location = binary_to_list(proplists:get_value(<<"location">>, H)),
+    FullPath = "priv/samples/" ++ binary_to_list(File),
+    io:format("~p~n",[FullPath]),
+    gen_server:cast(skydeo_parser,{parse, FullPath, Location}),
+    fold_list(T).

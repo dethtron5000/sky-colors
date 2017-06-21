@@ -34,7 +34,7 @@ websocket_info({timeout, _Ref, ping}, State) ->
 % new images
 websocket_info({newimage, Img, Location}, State) ->
 	L = [X || {_,X} <- Img],
-	Msg = {[{location, Location}, {img, L}]},
+	Msg = {[{location, list_to_binary(Location)}, {img, L}]},
 	Out = format_message(newimage, Msg),
 	{reply, {text, jiffy:encode(Out)}, State, hibernate};
 

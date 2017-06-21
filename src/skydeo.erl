@@ -1,6 +1,8 @@
 -module(skydeo).
 
--export([ensure_started/1, parse/2, start/0]).
+-export([ensure_started/1, send_all/0, parse/2, start/0, timerinternal/2]).
+-export([start_timer/0]).
+
 
 ensure_deps_started(App) ->
 	application:load(App), 
@@ -22,8 +24,26 @@ ensure_started(App) ->
 start() ->
 	ensure_deps_started(skydeo).
 
+send_all() ->
+	ensure_deps_started(skydeo),
+	gen_fsm:send_event(skydeo_message_handler, send_all).
+
 parse(File, Location) ->
 	ensure_deps_started(skydeo),
 	gen_server:call(skydeo_parser,{parse, File, Location},20000).
+
+start_timer() ->
+	{ok, _} = timerinternal("newyork",10).
+
+timerinternal(_,0) ->
+	ok;
+
+timerinternal(Location, Iteration) ->
+	FileBase = "priv/samples/seq",
+	FileEnd = ".jpg",
+	File = FileBase ++ integer_to_list(Iteration) ++ FileEnd,
+	gen_server:call(skydeo_parser,{parse, File, Location},20000),
+	timer:apply_after(15000,skydeo,timerinternal,[Location,(Iteration -1)]).
+
 
 
