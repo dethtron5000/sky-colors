@@ -59,5 +59,5 @@ code_change(_OldVsn, State, _Extra) ->
 
 fetch_all(_State) ->
 	{ok, Data} = file:read_file("priv/cfg/cfg.json"), 
-	Tst = jiffy:decode(Data).
+	jiffy:decode(Data).
 

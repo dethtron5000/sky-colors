@@ -37,13 +37,11 @@ init(_Args) ->
 %async events
 disconnected({newconn, Pid}, State) ->
     NewState = [Pid|State],
-    io:format("connecting ~p~n",[NewState]),
     Dat = gen_server:call(skydeo_storage,fetch_all),
     fold_list(Dat),
     {next_state, connected, NewState};
 
 disconnected(_Event, State) ->
-    io:format("disconnected~P~n",[_Event,20]),
     {next_state, disconnected, State}.
 
 %sync events
@@ -105,6 +103,5 @@ fold_list([{H}|T]) ->
     File = proplists:get_value(<<"file">>,H),
     Location = binary_to_list(proplists:get_value(<<"location">>, H)),
     FullPath = "priv/samples/" ++ binary_to_list(File),
-    io:format("~p~n",[FullPath]),
     gen_server:cast(skydeo_parser,{parse, FullPath, Location}),
     fold_list(T).
