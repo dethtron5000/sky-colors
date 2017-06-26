@@ -12,6 +12,7 @@ const initialState = {
   loading: false,
   token: '',
   connected: false,
+  lastLocation: '',
   locations: {
     cambridge: filler,
     newyork: filler,
@@ -40,7 +41,7 @@ export default function mr(state = initialState, action) {
       if (Object.prototype.hasOwnProperty.call(newimg, action.payload.location)) {
         newimg[action.payload.location] = action.payload;
         console.log(action.payload);
-        return Object.assign({}, state, { locations: newimg });
+        return Object.assign({}, state, { locations: newimg, lastLocation: action.payload.location });
       }
 
       return state;

@@ -33,16 +33,18 @@ parse(File, Location) ->
 	gen_server:call(skydeo_parser,{parse, File, Location},20000).
 
 start_timer() ->
-	{ok, _} = timerinternal("newyork",10).
+	Lst = ["newyork", "cambridge", "paloalto", "chicago", "sanfrancisco", "tokyo", "london", "shanghai", "munich"],
+	lists:foreach(fun(Elem) -> timerinternal(Elem,10) end, Lst).
 
 timerinternal(_,0) ->
 	ok;
 
 timerinternal(Location, Iteration) ->
-	FileBase = "priv/samples/seq",
+	FileBase = "priv/samples/",
+	FilePrefix = "/seq",
 	FileEnd = ".jpg",
-	File = FileBase ++ integer_to_list(Iteration) ++ FileEnd,
-	gen_server:call(skydeo_parser,{parse, File, Location},20000),
+	File = FileBase ++ Location ++ FilePrefix ++ integer_to_list(Iteration) ++ FileEnd,
+	gen_server:cast(skydeo_parser,{parse, File, Location}),
 	timer:apply_after(15000,skydeo,timerinternal,[Location,(Iteration -1)]).
 
 

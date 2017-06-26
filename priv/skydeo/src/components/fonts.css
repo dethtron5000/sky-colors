@@ -1,6 +1,7 @@
 .location {
-	font-family: 'Mrs Sheppards', cursive;
+	/* font-family: 'Mrs Sheppards', cursive; */
 	fill: #ffffff;
-	font-size: 40px;
-	z-index: 10000;
+	font-size: 10px;
+	font-family: 'Cutive Mono', monospace;
+	text-transform: uppercase;
 }

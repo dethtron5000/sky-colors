@@ -1,42 +1,38 @@
 [
 	{
-		"file":"cambridge 2-00.jpg",
+		"file":"cambridge/seq1.jpg",
 		"location":"cambridge"
 	},
 	{
-		"file":"newyork.jpg",
+		"file":"newyork/seq1.jpg",
 		"location":"newyork"
 	},
 	{
-		"file":"IMG_7432.JPG",
+		"file":"chicago/seq1.jpg",
 		"location":"chicago"
 	},	
 	{
-		"file":"IMG_7139.JPG",
+		"file":"paloalto/seq1.jpg",
 		"location":"paloalto"
 	},	
 	{
-		"file":"IMG_7139.JPG",
-		"location":"paloalto"
-	},
-	{
-		"file":"sanfrancisco.png",
+		"file":"sanfrancisco/seq1.jpg",
 		"location":"sanfrancisco"
 	},
 	{
-		"file":"clouds.jpg",
+		"file":"tokyo/seq1.jpg",
 		"location":"tokyo"
 	},
 	{
-		"file":"shanghai.jpg",
+		"file":"shanghai/seq1.jpg",
 		"location":"shanghai"
 	},
 	{
-		"file":"london 8-30.jpg",
+		"file":"london/seq1.jpg",
 		"location":"london"
 	},
 	{
-		"file":"Munich 4pm.jpg",
+		"file":"munich/seq1.jpg",
 		"location":"munich"
 	}
 ]
