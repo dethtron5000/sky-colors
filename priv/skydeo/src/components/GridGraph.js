@@ -6,19 +6,6 @@ import * as d3 from 'd3';
 import StateModel from './StateModel';
 import './fonts.css';
 
-
-const displayNames = {
-  cambridge: 'Cambridge',
-  newyork: 'New York',
-  chicago: 'Chicago',
-  sanfrancisco: 'San Francisco',
-  paloalto: 'Palo Alto',
-  tokyo: 'Tokyo',
-  shanghai: 'Shanghai',
-  munich: 'Munich',
-  london: 'London',
-};
-
 const mapStateToProps = state => ({ appState: state });
 
 const mapDispatchToProps = () => ({});
@@ -26,56 +13,6 @@ const mapDispatchToProps = () => ({});
 const makeScale = (size, domain) => d3.scaleLinear()
           .range([0, size])
           .domain([0, domain]);
-
-/*const group = function group(height, w) {
-  return function z(arr) {
-    const d = arr.img;
-    const sum = d3.sum(d, j => j.count);
-    const yscale = makeScale(height, sum);
-    let runningcount = 0;
-    const scalefunc = (j, k) => {
-      if (k === 0) {
-        return 0;
-      }
-
-      const out = yscale(d[k - 1].count + runningcount);
-      runningcount += d[k - 1].count;
-      return out;
-    };
-
-    const v = d3.select(this)
-      .selectAll('rect')
-        .data(d);
-
-    v
-      .transition()
-      .duration(10000)
-      .attr('fill', j => `#${j.hex}`)
-      .attr('height', j => yscale(j.count))
-      .attr('y', scalefunc)
-      .style('opacity', 1);
-
-    v
-      .exit()
-      .transition()
-      .duration(10000)
-      .style('opacity', 0)
-      .remove();
-    v
-      .enter()
-        .append('rect')
-        .attr('fill', j => `#${j.hex}`)
-        .attr('height', j => yscale(j.count))
-        .attr('width', w)
-        .attr('y', scalefunc)
-        .style('opacity', 0)
-        .transition()
-        .duration(10000)
-        .style('opacity', 1);
-
-    // ;
-  };
-};*/
 
 class GridGraphInner extends Component {
 
@@ -121,7 +58,7 @@ class GridGraphInner extends Component {
         .attr('x', 5)
         .text((d, i) => {
           const v = objectKeys;
-          return displayNames[v[i]];
+          return StateModel.displayNames[v[i]];
         })
         .attr('class', 'location');
         // .attr('transform', `rotate(90)`);
@@ -168,7 +105,7 @@ class GridGraphInner extends Component {
       .transition()
       .duration(5000)
       .style('opacity', 0)
-      .attr('width', 3*this.w)
+      .attr('width', 3 * this.w)
       // .attr('transform', `translate(${this.w})`)
       .remove();
     v
@@ -183,20 +120,6 @@ class GridGraphInner extends Component {
         .duration(10000)
         .attr('width', this.w)
         .style('opacity', 1);
-
-
-    // ;
-
-    /* graphholder
-      .enter()
-        .append('g')
-        .each(group(this.h, this.w))
-        .attr('class', 'barholder'); */
-
-    /* graphholder.exit().remove();
-
-    graphholder
-      .each(group(this.h, this.w)); */
   }
 
   render() {

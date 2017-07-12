@@ -29,4 +29,16 @@ const appState = PropTypes.shape({
   london: locationShape,
 });
 
-export default { appState };
+const displayNames = {
+  cambridge: 'Cambridge',
+  newyork: 'New York',
+  chicago: 'Chicago',
+  sanfrancisco: 'San Francisco',
+  paloalto: 'Palo Alto',
+  tokyo: 'Tokyo',
+  shanghai: 'Shanghai',
+  munich: 'Munich',
+  london: 'London',
+};
+
+export default { appState, displayNames };

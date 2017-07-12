@@ -14,7 +14,7 @@ const makeScale = (size, domain) => d3.scaleLinear()
           .range([0, size])
           .domain([0, domain]);
 
-class DotGraphInner extends Component {
+class GradientGraphInner extends Component {
 
   constructor(props) {
     super(props);
@@ -25,16 +25,31 @@ class DotGraphInner extends Component {
   }
 
   componentDidMount() {
-    this.dotgraph = d3.select(this.target).append('svg')
+    this.svg = d3.select(this.target).append('svg');
+    this.defs = this.svg.append('defs');
+    this.gradientGraph = this.svg
       .attr('height', this.props.height)
       .attr('width', this.props.width)
       .append('g');
+
+
+
+
     const transformFunc = (d, i) => `translate(0,${i * (this.h + this.padding)})`;
 
     const objectData = Object.values(this.props.appState.locations);
     const objectKeys = Object.keys(this.props.appState.locations);
 
-    const graphholder = this.dotgraph.selectAll('.stack')
+    const defsholder = this.defs.selectAll('linearGradient')
+      .data(objectData)
+      .enter();
+
+    defsholder
+      .append('linearGradient')
+      .attr('id', (d, i) => objectKeys[i]);
+
+
+    const graphholder = this.gradientGraph.selectAll('.stack')
       .data(objectData)
       .enter();
 
@@ -44,17 +59,23 @@ class DotGraphInner extends Component {
         .attr('transform', transformFunc)
         .attr('id', (d, i) => objectKeys[i]);
 
-    stack.append('g')
-      .attr('class', 'dotholder');
+    stack.append('rect')
+      .attr('class', 'linearholder')
+      .attr('x', '14')
+      .attr('width', this.w)
+      .attr('height', this.h)
+      .attr('fill', (d, i) => `url(#${objectKeys[i]})`);
 
     stack.append('g')
       .attr('class', 'textHolder');
 
-    this.dotgraph.selectAll('.textHolder')
+    this.gradientGraph.selectAll('.textHolder')
       .data(objectData)
       .append('text')
-        .attr('y', (this.h - 5))
+        .attr('y', -5)
         .attr('x', 5)
+        .attr('transform', 'rotate(90)')
+        .attr('fill', '#990000')
         .text((d, i) => {
           const v = objectKeys;
           return StateModel.displayNames[v[i]];
@@ -70,75 +91,76 @@ class DotGraphInner extends Component {
 
   componentDidUpdate() {
     const extract = this.props.appState.locations[this.props.appState.lastLocation];
-    const graphholder = this
-      .dotgraph
-      .selectAll(`#${this.props.appState.lastLocation} .dotholder`);
+    const stopholder = this
+      .defs
+      .selectAll(`#${this.props.appState.lastLocation}`);
+      // console.log(stopholder);
 
     // const d = arr.img;
     const sum = d3.sum(extract.img, j => j.count);
-    const yscale = makeScale(this.h, sum);
+    const wscale = makeScale(100, sum);
+    /* const xscale = d3.scaleLinear()
+          .range([0, this.w])
+          .domain([0, extract.img.length]); */
+
     let runningcount = 0;
     const scalefunc = (j, k) => {
       if (k === 0) {
-        return 0;
+        return '0%';
       }
 
-      const out = yscale(extract.img[k - 1].count + runningcount);
+      const out = wscale(extract.img[k - 1].count + runningcount);
       runningcount += extract.img[k - 1].count;
-      return out;
+      return `${out}%`;
     };
 
-    const v = graphholder
-      .selectAll('rect')
+    const st = stopholder
+      .selectAll('stop')
         .data(extract.img);
+    console.log(st);
 
-    v
+    st
       .transition()
-      .duration(10000)
-      .attr('fill', j => `#${j.hex}`)
-      .attr('height', j => yscale(j.count))
-      .attr('y', scalefunc)
-      .attr('width', this.w);
+      .duration(45000)
+      .attr('offset', scalefunc)
+      .attr('stop-color', j => `#${j.hex}`);
 
-    v
+    // .style('opacity', 1);
+
+    st
       .exit()
       .transition()
-      .duration(5000)
-      .style('opacity', 0)
-      .attr('width', 3 * this.w)
-
-      // .attr('transform', `translate(${this.w})`)
+      .duration(45000)
+      .attr('stop-opacity', 0)
       .remove();
-    v
+
+    st
       .enter()
-        .append('rect')
-        .attr('fill', j => `#${j.hex}`)
-        .attr('height', j => yscale(j.count))
-        .attr('width', 0)
-        .attr('y', scalefunc)
-        .style('opacity', 0)
-        .transition()
-        .duration(10000)
-        .attr('width', this.w)
-        .style('opacity', 1);
+      .append('stop')
+      .attr('offset', scalefunc)
+      .attr('stop-color', j => `#${j.hex}`)
+      .attr('stop-opacity', 0)
+      .transition()
+      .duration(5000)
+      .attr('stop-opacity', 1);
   }
 
   render() {
-    return (<div id='graph' />);
+    return (<div id="graph" />);
   }
 
 }
 
-DotGraphInner.propTypes = {
+GradientGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   appState: StateModel.appState.isRequired,
 
 };
 
-const DotGraph = connect(
+const GradientGraph = connect(
     mapStateToProps,
     mapDispatchToProps,
-)(DotGraphInner);
+)(GradientGraphInner);
 
-export default DotGraph;
+export default GradientGraph;

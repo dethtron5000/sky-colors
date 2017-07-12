@@ -14,7 +14,7 @@ const makeScale = (size, domain) => d3.scaleLinear()
           .range([0, size])
           .domain([0, domain]);
 
-class DotGraphInner extends Component {
+class LinearGraphInner extends Component {
 
   constructor(props) {
     super(props);
@@ -25,7 +25,7 @@ class DotGraphInner extends Component {
   }
 
   componentDidMount() {
-    this.dotgraph = d3.select(this.target).append('svg')
+    this.lineargraph = d3.select(this.target).append('svg')
       .attr('height', this.props.height)
       .attr('width', this.props.width)
       .append('g');
@@ -34,7 +34,7 @@ class DotGraphInner extends Component {
     const objectData = Object.values(this.props.appState.locations);
     const objectKeys = Object.keys(this.props.appState.locations);
 
-    const graphholder = this.dotgraph.selectAll('.stack')
+    const graphholder = this.lineargraph.selectAll('.stack')
       .data(objectData)
       .enter();
 
@@ -45,16 +45,19 @@ class DotGraphInner extends Component {
         .attr('id', (d, i) => objectKeys[i]);
 
     stack.append('g')
-      .attr('class', 'dotholder');
+      .attr('class', 'linearholder')
+      .attr('transform', 'translate(14)');
 
     stack.append('g')
       .attr('class', 'textHolder');
 
-    this.dotgraph.selectAll('.textHolder')
+    this.lineargraph.selectAll('.textHolder')
       .data(objectData)
       .append('text')
-        .attr('y', (this.h - 5))
+        .attr('y', -5)
         .attr('x', 5)
+        .attr('transform', 'rotate(90)')
+        .attr('fill', '#990000')
         .text((d, i) => {
           const v = objectKeys;
           return StateModel.displayNames[v[i]];
@@ -71,22 +74,15 @@ class DotGraphInner extends Component {
   componentDidUpdate() {
     const extract = this.props.appState.locations[this.props.appState.lastLocation];
     const graphholder = this
-      .dotgraph
-      .selectAll(`#${this.props.appState.lastLocation} .dotholder`);
+      .lineargraph
+      .selectAll(`#${this.props.appState.lastLocation} .linearholder`);
 
     // const d = arr.img;
-    const sum = d3.sum(extract.img, j => j.count);
-    const yscale = makeScale(this.h, sum);
-    let runningcount = 0;
-    const scalefunc = (j, k) => {
-      if (k === 0) {
-        return 0;
-      }
-
-      const out = yscale(extract.img[k - 1].count + runningcount);
-      runningcount += extract.img[k - 1].count;
-      return out;
-    };
+    const max = d3.max(extract.img, j => j.count);
+    const wscale = makeScale(this.w / extract.img.length, max);
+    const xscale = d3.scaleLinear()
+          .range([0, this.w])
+          .domain([0, extract.img.length]);
 
     const v = graphholder
       .selectAll('rect')
@@ -94,51 +90,54 @@ class DotGraphInner extends Component {
 
     v
       .transition()
-      .duration(10000)
-      .attr('fill', j => `#${j.hex}`)
-      .attr('height', j => yscale(j.count))
-      .attr('y', scalefunc)
-      .attr('width', this.w);
+      .duration(50000)
+      .attr('width', j => wscale(j.count))
+      .attr('x', (j, i) => xscale(i))
+      .attr('fill', j => `#${j.hex}`);
+     // .style('opacity', 1);
+
 
     v
       .exit()
       .transition()
-      .duration(5000)
-      .style('opacity', 0)
-      .attr('width', 3 * this.w)
-
-      // .attr('transform', `translate(${this.w})`)
+      .duration(10000)
+      .attr('width', 0)
       .remove();
     v
       .enter()
         .append('rect')
         .attr('fill', j => `#${j.hex}`)
-        .attr('height', j => yscale(j.count))
+
+        // .attr('r', 0)
         .attr('width', 0)
-        .attr('y', scalefunc)
-        .style('opacity', 0)
+
+        .attr('height', this.h - 10)
+        .attr('x', (j, i) => xscale(i))
+
+        // .style('opacity', 0)
         .transition()
-        .duration(10000)
-        .attr('width', this.w)
+        .duration(20000)
+        .attr('width', j => wscale(j.count))
+
         .style('opacity', 1);
   }
 
   render() {
-    return (<div id='graph' />);
+    return (<div id="graph" />);
   }
 
 }
 
-DotGraphInner.propTypes = {
+LinearGraphInner.propTypes = {
   height: PropTypes.number.isRequired,
   width: PropTypes.number.isRequired,
   appState: StateModel.appState.isRequired,
 
 };
 
-const DotGraph = connect(
+const LinearGraph = connect(
     mapStateToProps,
     mapDispatchToProps,
-)(DotGraphInner);
+)(LinearGraphInner);
 
-export default DotGraph;
+export default LinearGraph;

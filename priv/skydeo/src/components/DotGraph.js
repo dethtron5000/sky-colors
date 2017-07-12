@@ -75,56 +75,57 @@ class DotGraphInner extends Component {
       .selectAll(`#${this.props.appState.lastLocation} .dotholder`);
 
     // const d = arr.img;
-    const sum = d3.sum(extract.img, j => j.count);
-    const yscale = makeScale(this.h, sum);
-    let runningcount = 0;
-    const scalefunc = (j, k) => {
-      if (k === 0) {
-        return 0;
-      }
-
-      const out = yscale(extract.img[k - 1].count + runningcount);
-      runningcount += extract.img[k - 1].count;
-      return out;
-    };
+    const max = d3.max(extract.img, j => j.count);
+    const rscale = makeScale(0.75 * this.h, max);
+    const xscale = d3.scaleLinear()
+          .range([this.h, this.w - (this.h)])
+          .domain([0, extract.img.length - 1]);
 
     const v = graphholder
-      .selectAll('rect')
+      .selectAll('circle')
         .data(extract.img);
 
     v
+
+      // .style('opacity', 0.1)
       .transition()
-      .duration(10000)
+      .duration(60000)
       .attr('fill', j => `#${j.hex}`)
-      .attr('height', j => yscale(j.count))
-      .attr('y', scalefunc)
-      .attr('width', this.w);
+      .attr('r', j => rscale(j.count))
+      .attr('cx', (j, i) => xscale(i));
+
+    // .style('opacity', 1)
 
     v
       .exit()
       .transition()
-      .duration(5000)
-      .style('opacity', 0)
-      .attr('width', 3 * this.w)
+      .duration(60000)
 
-      // .attr('transform', `translate(${this.w})`)
+      // .style('opacity', 0)
+      .attr('cx', this.w + 500)
       .remove();
+
     v
       .enter()
-        .append('rect')
+        .append('circle')
         .attr('fill', j => `#${j.hex}`)
-        .attr('height', j => yscale(j.count))
-        .attr('width', 0)
-        .attr('y', scalefunc)
+
+        // .attr('r', 0)
+        .attr('r', j => rscale(j.count))
+
+        .attr('cy', 0.5 * this.h)
+        .attr('cx', 0)
+        .attr('cx', (j, i) => xscale(i))
         .style('opacity', 0)
         .transition()
         .duration(10000)
-        .attr('width', this.w)
-        .style('opacity', 1);
+        .style('opacity', 0.8)
+        /* .transition()
+        .duration(15000) */;
   }
 
   render() {
-    return (<div id='graph' />);
+    return (<div id="graph" />);
   }
 
 }

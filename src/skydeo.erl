@@ -1,7 +1,7 @@
 -module(skydeo).
 
--export([ensure_started/1, send_all/0, parse/2, start/0, timerinternal/2]).
--export([start_timer/0]).
+-export([ensure_started/1, send_all/0, parse/2, start/0, timerinternal/3]).
+-export([start_timer/1]).
 
 
 ensure_deps_started(App) ->
@@ -32,20 +32,20 @@ parse(File, Location) ->
 	ensure_deps_started(skydeo),
 	gen_server:call(skydeo_parser,{parse, File, Location},20000).
 
-start_timer() ->
+start_timer(Duration) ->
 	Lst = ["newyork", "cambridge", "paloalto", "chicago", "sanfrancisco", "tokyo", "london", "shanghai", "munich"],
-	lists:foreach(fun(Elem) -> timerinternal(Elem,10) end, Lst).
+	lists:foreach(fun(Elem) -> timerinternal(Elem,10,Duration) end, Lst).
 
-timerinternal(_,0) ->
+timerinternal(_,0,_) ->
 	ok;
 
-timerinternal(Location, Iteration) ->
+timerinternal(Location, Iteration,Duration) ->
 	FileBase = "priv/samples/",
 	FilePrefix = "/seq",
 	FileEnd = ".jpg",
 	File = FileBase ++ Location ++ FilePrefix ++ integer_to_list(Iteration) ++ FileEnd,
 	gen_server:cast(skydeo_parser,{parse, File, Location}),
-	timer:apply_after(15000,skydeo,timerinternal,[Location,(Iteration -1)]).
+	timer:apply_after(Duration,skydeo,timerinternal,[Location,(Iteration -1),Duration]).
 
 
 
